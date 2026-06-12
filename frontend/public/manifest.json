@@ -1,0 +1,11 @@
+{
+  "short_name": "Ember & Oak",
+  "name": "Ember & Oak — Scan & Order",
+  "icons": [
+    { "src": "favicon.ico", "sizes": "64x64 32x32 24x24 16x16", "type": "image/x-icon" }
+  ],
+  "start_url": "/menu",
+  "display": "standalone",
+  "theme_color": "#FF6B00",
+  "background_color": "#0F0F0F"
+}

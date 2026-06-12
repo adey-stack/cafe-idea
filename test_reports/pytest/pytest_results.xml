@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="11" time="12.137" timestamp="2026-04-30T08:54:08.447181+00:00" hostname="agent-env-40527503-bbe5-4b53-955b-eddae2a90c8c"><testcase classname="backend.tests.test_restaurant_qr" name="test_default_restaurant" time="0.155" /><testcase classname="backend.tests.test_restaurant_qr" name="test_login_and_me" time="0.313" /><testcase classname="backend.tests.test_restaurant_qr" name="test_login_invalid" time="0.304" /><testcase classname="backend.tests.test_restaurant_qr" name="test_public_menu" time="0.067" /><testcase classname="backend.tests.test_restaurant_qr" name="test_list_tables" time="0.045" /><testcase classname="backend.tests.test_restaurant_qr" name="test_create_and_delete_table" time="0.116" /><testcase classname="backend.tests.test_restaurant_qr" name="test_orders_full_flow" time="0.433" /><testcase classname="backend.tests.test_restaurant_qr" name="test_dashboard_stats" time="0.047" /><testcase classname="backend.tests.test_restaurant_qr" name="test_menu_crud" time="0.385" /><testcase classname="backend.tests.test_restaurant_qr" name="test_upload_image" time="0.044" /><testcase classname="backend.tests.test_restaurant_qr" name="test_websocket_new_order" time="10.022"><failure message="TimeoutError: timed out during opening handshake">/root/.venv/lib/python3.11/site-packages/websockets/asyncio/client.py:546: in __await_impl__
+    await self.connection.handshake(
+/root/.venv/lib/python3.11/site-packages/websockets/asyncio/client.py:105: in handshake
+    await asyncio.wait(
+/usr/local/lib/python3.11/asyncio/tasks.py:428: in wait
+    return await _wait(fs, timeout, return_when, loop)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/asyncio/tasks.py:535: in _wait
+    await waiter
+E   asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+/root/.venv/lib/python3.11/site-packages/websockets/asyncio/client.py:542: in __await_impl__
+    async with asyncio_timeout(self.open_timeout):
+/usr/local/lib/python3.11/asyncio/timeouts.py:115: in __aexit__
+    raise TimeoutError from exc_val
+E   TimeoutError
+
+The above exception was the direct cause of the following exception:
+backend/tests/test_restaurant_qr.py:171: in test_websocket_new_order
+    async with websockets.connect(ws_url) as ws:
+/root/.venv/lib/python3.11/site-packages/websockets/asyncio/client.py:590: in __aenter__
+    return await self
+           ^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/websockets/asyncio/client.py:581: in __await_impl__
+    raise TimeoutError("timed out during opening handshake") from exc
+E   TimeoutError: timed out during opening handshake</failure></testcase></testsuite></testsuites>

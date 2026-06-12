@@ -1,0 +1,42 @@
+{
+  "summary": "Tested backend (11 pytest cases) and frontend (landing, customer menu, admin login + 5 sidebar pages). 10/11 backend tests passed. WebSocket integration is broken externally because /ws/{restaurant_id} is mounted on the FastAPI app without /api prefix; the Kubernetes ingress only routes /api/* to backend. Admin Live Orders renders correctly with all 5 columns and previously placed test orders are visible. Customer menu page is missing data-testid attributes for add-to-cart/open-cart/place-order, blocking automated and reliable e2e clicks.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "WS /ws/{restaurant_id}", "issue": "WebSocket handshake times out externally. Route is not under /api prefix so the Kubernetes ingress does not forward it to the backend. Frontend (LiveOrders.jsx, OrderTrack.jsx) and pytest both fail to connect at wss://<host>/ws/<rid>.", "priority": "CRITICAL"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CustomerMenu", "issue": "Missing data-testid attributes on critical interactive elements (add-to-cart buttons, open-cart, place-order, qty controls) making e2e and product testing unreliable.", "selector": "[data-testid='add-to-cart-*'], [data-testid='open-cart'], [data-testid='place-order']", "priority": "MEDIUM"},
+      {"component": "CustomerMenu (anonymous)", "issue": "Customer menu page triggers 401 console errors (likely /api/auth/me being called without auth on public route). Should suppress or guard the call when no token/cookie.", "selector": "n/a", "priority": "LOW"}
+    ],
+    "integration_issues": [
+      {"flow": "Live Orders realtime", "issue": "WebSocket connection to wss://<host>/ws/<restaurant_id> fails (closed before connection). New orders only appear after manual refresh / re-fetch since LiveOrders also polls. Root cause same as backend critical: WS not under /api.", "affected_selectors": ["[data-testid='live-orders']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_restaurant_qr.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Fix WebSocket route: either move endpoint to /api/ws/{restaurant_id} OR configure ingress; cleanest is to mount @app.websocket('/api/ws/{restaurant_id}') and update frontend wsUrl in /app/frontend/src/pages/admin/LiveOrders.jsx and /app/frontend/src/pages/OrderTrack.jsx accordingly.",
+    "Add data-testid to CustomerMenu interactive elements: add-to-cart-{itemId}, open-cart, place-order, qty-inc, qty-dec, cart-drawer.",
+    "Guard /api/auth/me call on public customer route to avoid 401 console noise."
+  ],
+  "critical_code_review_comments": [
+    "WebSocket endpoint registered on app (not api router) and without /api prefix breaks ingress routing - critical for realtime feature.",
+    "seed_demo correctly re-hashes admin password if env password changes (good).",
+    "bcrypt hashing uses gensalt() default - format $2b$ (good).",
+    "Cookie set with secure=true, samesite='none', httponly=true - correct for cross-site preview.",
+    "No brute-force lockout implemented for /api/auth/login (playbook notes 5-fail lockout). Not blocking but missing.",
+    "/api/orders POST has no auth, fine for QR ordering, but no rate-limiting / table validation beyond existence.",
+    "CORS uses allow_credentials=True with allow_origins from env; if CORS_ORIGINS='*' combined with credentials, browsers will reject. Verify CORS_ORIGINS env contains explicit origin."
+  ],
+  "updated_files": ["/app/backend/tests/test_restaurant_qr.py"],
+  "success_rate": {"backend": "91% (10/11)", "frontend": "80% (admin works, customer e2e click flow blocked by missing testids; WS broken)"},
+  "test_credentials": "owner@demo.com / owner123 (verified working)",
+  "seed_data_creation": "Seed data verified (1 restaurant, 4 categories, 8 items, 6 tables, 1 owner). Created/cleaned 1 TEST_ table and 1 TEST_ category+item via CRUD tests. A few TEST orders placed remain in DB.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All REST APIs work. Only WS is broken externally; once main agent moves WS under /api prefix and updates frontend ws URL, retest realtime by placing an order and verifying LiveOrders kanban updates without refresh. Customer menu testids must be added to enable full e2e Playwright cart→place-order flow.",
+  "rca of the issue": "WebSocket route '@app.websocket(\"/ws/{restaurant_id}\")' is registered outside the /api router. Kubernetes ingress configuration only forwards paths starting with /api/* to the backend service on port 8001; all other paths go to the frontend. Therefore wss://<host>/ws/... never reaches FastAPI. Fix: change to '@app.websocket(\"/api/ws/{restaurant_id}\")' (cannot be on APIRouter for WS in FastAPI <0.110, but can be defined on app with /api prefix). Update frontend wsUrl construction in LiveOrders.jsx (line 62) and OrderTrack.jsx (line 27) to '${BACKEND_URL.replace(/^http/, \"ws\")}/api/ws/${rid}'."
+}
