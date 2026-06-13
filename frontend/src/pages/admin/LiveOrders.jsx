@@ -80,16 +80,21 @@ export default function LiveOrders() {
   }, [rid]);
 
   const advance = async (order) => {
-    const next = NEXT_STATUS[order.status];
-    if (!next) return;
-    try {
-      await api.patch(`/orders/${order.id}/status`, { status: next });
-      toast.success(`Moved to ${next}`);
-    } catch {
-      toast.error("Failed to update");
-    }
-  };
-
+  const next = NEXT_STATUS[order.status];
+  if (!next) return;
+  setOrders((prev) =>
+    prev.map((o) => (o.id === order.id ? { ...o, status: next } : o))
+  );
+  try {
+    await api.patch(`/orders/${order.id}/status`, { status: next });
+    toast.success(`Moved to ${next}`);
+  } catch {
+    setOrders((prev) =>
+      prev.map((o) => (o.id === order.id ? { ...o, status: order.status } : o))
+    );
+    toast.error("Failed to update");
+  }
+};
   const visible = orders.filter((o) => !tableFilter || String(o.table_number) === String(tableFilter));
   const byStatus = (k) => visible.filter((o) => o.status === k);
 
