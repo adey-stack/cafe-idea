@@ -128,10 +128,11 @@ export default function LiveOrders() {
               <div className="space-y-3 overflow-y-auto flex-1 pr-1">
                 <AnimatePresence>
                   {items.map((o) => (
-                    <motion.div
-                      key={o.id}
-                      layout
-                      initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      <motion.div
+                        key={o.id}
+                        initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                         
                       className={`bg-ink rounded-xl border ${newIds.has(o.id) ? "border-brand pulse-orange" : "border-surface2"} p-3`}
                       data-testid={`order-card-${o.id}`}
                     >
