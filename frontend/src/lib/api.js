@@ -5,7 +5,7 @@ export const API = `${BACKEND_URL}/api`;
 
 export const api = axios.create({
   baseURL: API,
-  withCredentials: false,
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
